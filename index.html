@@ -145,9 +145,6 @@ textarea::placeholder{color:var(--muted)}
 </div>
 
 <script>
-/* 1. Paste your Cloudflare Worker URL here (no trailing slash). */
-const WORKER_URL = "https://wrolly-ai.aasifahmed497.workers.dev/";
-
 const $ = s => document.querySelector(s);
 const log = $("#log"), input = $("#input"), sendBtn = $("#send");
 let mode = "chat", history = [], busy = false;
@@ -172,21 +169,43 @@ function add(cls, html){
 }
 function setBusy(v){ busy = v; document.body.classList.toggle("busy", v); sendBtn.disabled = v || !input.value.trim(); }
 
-async function api(path, body){
-  if (!WORKER_URL) throw new Error("Add your Worker URL to index.html to turn this on.");
-  const r = await fetch(WORKER_URL + path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(d.error || "Something went wrong. Try again in a moment.");
-  return d;
+const SYSTEM = "You are a friendly, imaginative writing helper on a children’s book author’s website. Keep every answer family-friendly, warm and clear.";
+const errText = e => e?.message || "Something went wrong. Try again in a moment.";
+
+// Free, no-login servers. Tried in order: Pollinations first, then LLM7.
+async function ask(url, body, headers = {}){
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 30000);
+  try{
+    const r = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json", ...headers}, body:JSON.stringify(body), signal:ctl.signal});
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const out = (await r.json())?.choices?.[0]?.message?.content;
+    if (!out) throw new Error("Empty reply");
+    return out;
+  } finally { clearTimeout(timer); }
+}
+let llm7Model;
+async function chat(messages){
+  const msgs = [{role:"system", content:SYSTEM}, ...messages];
+  try { return await ask("https://text.pollinations.ai/openai", {messages:msgs}); } catch(_) {}
+  try{
+    if (!llm7Model){
+      const ids = ((await (await fetch("https://api.llm7.io/v1/models")).json()).data || []).map(x => x.id);
+      llm7Model = ids.includes("default") ? "default" : ids[0];
+    }
+    return await ask("https://api.llm7.io/v1/chat/completions", {model:llm7Model, messages:msgs}, {Authorization:"Bearer unused"});
+  } catch(_) {}
+  throw new Error("The free AI servers are busy right now. Wait about 15 seconds and try again.");
 }
 function loadImg(src){
-  return new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(src); i.onerror = () => no(new Error("The picture didn’t load. Wait a few seconds and try again.")); i.src = src; });
+  return new Promise((ok, no) => {
+    const i = new Image(), timer = setTimeout(() => no(new Error("The picture took too long. Try again in a moment.")), 90000);
+    i.onload = () => { clearTimeout(timer); ok(src); };
+    i.onerror = () => { clearTimeout(timer); no(new Error("The picture didn’t load. The free server allows about one picture every 15 seconds. Wait a moment and try again.")); };
+    i.src = src;
+  });
 }
-async function makeImage(p){
-  if (WORKER_URL) return (await api("/image", {prompt:p})).image;
-  // Fallback with no setup: Pollinations’ keyless endpoint (slower, rate limited)
-  return loadImg("https://image.pollinations.ai/prompt/" + encodeURIComponent(p) + "?width=768&height=768&nologo=true&seed=" + Date.now());
-}
+const makeImage = p => loadImg("https://image.pollinations.ai/prompt/" +
+  encodeURIComponent(p + ", children’s book illustration, friendly, colorful") + "?width=768&height=768&nologo=true&seed=" + Date.now());
 
 async function send(text){
   text = text.trim(); if (!text || busy) return;
@@ -198,10 +217,10 @@ async function send(text){
       add("ai pic", `<img src="${src}" alt="${esc(text)}"><br><a href="${src}" download="story-image.jpg" target="_blank" rel="noopener">Save image</a>`);
     } else {
       history.push({role:"user", content:text});
-      const d = await api("", {messages:history.slice(-12)});
-      history.push({role:"assistant", content:d.reply}); wait.remove(); add("ai", md(d.reply));
+      const out = await chat(history.slice(-12));
+      history.push({role:"assistant", content:out}); wait.remove(); add("ai", md(out));
     }
-  } catch(e){ wait.remove(); if (mode === "chat") history.pop(); add("err", esc(e.message)); }
+  } catch(e){ wait.remove(); if (mode === "chat") history.pop(); add("err", esc(errText(e))); }
   setBusy(false); log.scrollTop = log.scrollHeight;
 }
 
