@@ -3,258 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Story Studio – AI chat and pictures</title>
+<title>Wrolly-AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --night:#120F2E; --deep:#1C1745; --ink:#F3EEFF; --muted:#A9A3C9;
-  --moon:#FFD9A0; --mint:#8CF5D2; --violet:#9B8CFF; --rose:#FF9EC7;
-  --glass:rgba(255,255,255,.07); --line:rgba(255,255,255,.13);
-  --serif:'Fraunces',Georgia,serif; --sans:'Figtree',system-ui,sans-serif;
-}
-*{box-sizing:border-box;margin:0}
-html,body{height:100%}
-body{
-  font-family:var(--sans);color:var(--ink);background:var(--night);
-  background-image:
-    radial-gradient(60rem 40rem at 85% -10%,rgba(155,140,255,.32),transparent 60%),
-    radial-gradient(50rem 36rem at -10% 110%,rgba(255,158,199,.2),transparent 60%),
-    radial-gradient(40rem 30rem at 50% 50%,rgba(140,245,210,.06),transparent 70%);
-  display:flex;justify-content:center;overflow:hidden;
-}
-body::before{ /* stars */
-  content:"";position:fixed;inset:0;pointer-events:none;opacity:.7;
-  background-image:
-    radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 28% 72%,#fff,transparent),
-    radial-gradient(1.5px 1.5px at 46% 9%,#fff,transparent),radial-gradient(1px 1px at 63% 38%,#fff,transparent),
-    radial-gradient(1.5px 1.5px at 78% 81%,#fff,transparent),radial-gradient(1px 1px at 91% 24%,#fff,transparent),
-    radial-gradient(1px 1px at 7% 88%,#fff,transparent),radial-gradient(1.5px 1.5px at 55% 92%,#fff,transparent);
-}
-.app{
-  position:relative;width:100%;max-width:840px;height:100dvh;display:flex;flex-direction:column;
-  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-}
-header{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:14px 18px;margin:10px 12px 0;border:1px solid var(--line);border-radius:22px;
-  background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-}
-.brand{display:flex;align-items:center;gap:12px;min-width:0}
-.brand h1{font:700 1.15rem/1.1 var(--serif);letter-spacing:.01em;white-space:nowrap}
-.brand small{display:block;color:var(--muted);font-size:.78rem;margin-top:3px}
-.orb{
-  --s:38px;width:var(--s);height:var(--s);flex:none;border-radius:50%;
-  background:radial-gradient(circle at 32% 30%,#fff 0,var(--moon) 38%,#E9A56B 100%);
-  box-shadow:0 0 24px 4px rgba(255,217,160,.45),inset -6px -8px 14px rgba(160,90,40,.35);
-}
-body.busy .orb{animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{50%{box-shadow:0 0 44px 12px rgba(255,217,160,.75),inset -6px -8px 14px rgba(160,90,40,.35);transform:scale(1.08)}}
-.modes{display:flex;padding:4px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid var(--line);flex:none}
-.modes button{
-  border:0;background:none;color:var(--muted);font:600 .86rem var(--sans);padding:8px 16px;border-radius:999px;cursor:pointer;
-  transition:background .25s,color .25s;
-}
-.modes button[aria-pressed=true]{background:linear-gradient(135deg,var(--violet),var(--rose));color:#1a1238}
-main{flex:1;overflow-y:auto;padding:18px 16px 8px;scroll-behavior:smooth;display:flex;flex-direction:column;gap:14px}
-.hero{margin:auto;text-align:center;padding:12px 10px;max-width:560px}
-.hero .orb{--s:96px;margin:0 auto 26px}
-.hero h2{font:700 clamp(1.7rem,5.4vw,2.6rem)/1.15 var(--serif);margin-bottom:12px}
-.hero p{color:var(--muted);line-height:1.55;margin-bottom:26px}
-.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.chip{
-  border:1px solid var(--line);background:var(--glass);color:var(--ink);font:500 .9rem var(--sans);
-  padding:10px 16px;border-radius:16px;cursor:pointer;text-align:left;transition:border-color .2s,background .2s;
-}
-.chip:hover{border-color:var(--mint);background:rgba(140,245,210,.09)}
-.msg{max-width:min(86%,640px);padding:13px 17px;border-radius:20px;line-height:1.6;font-size:1rem;white-space:pre-wrap;overflow-wrap:anywhere;animation:in .3s ease-out}
-@keyframes in{from{opacity:0;transform:translateY(8px)}}
-.msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--violet),#7B68EE);color:#10092e;font-weight:500;border-bottom-right-radius:6px}
-.msg.ai{align-self:flex-start;background:var(--glass);border:1px solid var(--line);border-bottom-left-radius:6px;backdrop-filter:blur(10px)}
-.msg.err{align-self:flex-start;background:rgba(255,120,120,.12);border:1px solid rgba(255,140,140,.45);color:#FFC9C9}
-.msg code{font:.88em ui-monospace,Menlo,monospace;background:rgba(0,0,0,.35);padding:2px 6px;border-radius:6px}
-.msg pre{background:rgba(0,0,0,.4);padding:12px;border-radius:12px;overflow-x:auto;margin:8px 0;white-space:pre}
-.msg pre code{background:none;padding:0}
-.pic{padding:10px;white-space:normal}
-.pic img{display:block;width:100%;max-width:420px;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--deep)}
-.pic a{display:inline-block;margin:10px 4px 2px;color:var(--mint);font-weight:600;font-size:.9rem;text-decoration:none}
-.dots{display:flex;gap:6px;padding:16px 18px}
-.dots i{width:8px;height:8px;border-radius:50%;background:var(--mint);animation:b 1s infinite}
-.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
-@keyframes b{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-5px)}}
-form{
-  display:flex;align-items:flex-end;gap:10px;margin:8px 12px 12px;padding:10px 10px 10px 18px;
-  border:1px solid var(--line);border-radius:26px;background:rgba(28,23,69,.78);
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 12px 40px rgba(0,0,0,.35);
-  transition:border-color .2s,box-shadow .2s;
-}
-form:focus-within{border-color:var(--violet);box-shadow:0 12px 40px rgba(0,0,0,.35),0 0 0 3px rgba(155,140,255,.28)}
-textarea{
-  flex:1;border:0;outline:0;resize:none;background:none;color:var(--ink);font:1rem/1.5 var(--sans);
-  max-height:150px;padding:8px 0;
-}
-textarea::placeholder{color:var(--muted)}
-.send{
-  width:46px;height:46px;flex:none;border:0;border-radius:50%;cursor:pointer;display:grid;place-items:center;
-  background:linear-gradient(135deg,var(--mint),var(--violet));color:#120F2E;transition:transform .15s,opacity .2s;
-}
-.send:hover{transform:scale(1.07)}.send:disabled{opacity:.4;cursor:default;transform:none}
-.send svg{width:21px;height:21px}
-:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
-@media(max-width:520px){
-  header{padding:10px 12px;margin:8px 8px 0}.brand small{display:none}
-  .modes button{padding:8px 9px;font-size:.8rem}.msg{max-width:92%}main{padding:14px 10px 6px}form{margin:6px 8px 10px}
-}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9B8CFF"/><stop offset=".55" stop-color="#FF9EC7"/><stop offset="1" stop-color="#8CF5D2"/>
+    </linearGradient>
+    <symbol id="logo" viewBox="0 0 48 48">
+      <rect width="48" height="48" rx="14" fill="url(#lg)"/>
+      <path d="M12 19l5.5 15L24 23l6.5 11L36 19" fill="none" stroke="#120F2E" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M37 4Q37.8 9.2 43 10Q37.8 10.8 37 16Q36.2 10.8 31 10Q36.2 9.2 37 4Z" fill="#fff"/>
+    </symbol>
+  </defs>
+</svg>
+
 <div class="app">
   <header>
     <div class="brand">
-      <div class="orb"></div>
-      <div><h1>Story Studio</h1><small>Ask anything, or draw a scene</small></div>
+      <svg class="logo"><use href="#logo"/></svg>
+      <div><h1>Wrolly-AI</h1><small>Ask me anything</small></div>
     </div>
-    <div class="modes" role="group" aria-label="Mode">
-      <button type="button" data-mode="chat" aria-pressed="true">Chat</button>
-      <button type="button" data-mode="local" aria-pressed="false">On-device</button>
-      <button type="button" data-mode="image" aria-pressed="false">Picture</button>
-    </div>
+    <button type="button" id="clear" class="ghost" aria-label="Delete history" title="Delete history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/></svg>
+      <span>Delete history</span>
+    </button>
   </header>
 
   <main id="log" aria-live="polite">
     <section class="hero" id="hero">
-      <div class="orb"></div>
-      <h2>What story shall we dream up today?</h2>
-      <p>Chat for ideas, plots and answers. Switch to Picture and describe a scene to see it drawn.</p>
+      <svg class="logo big"><use href="#logo"/></svg>
+      <h2>Hi, I’m Wrolly-AI</h2>
+      <p>Ask me about code, writing, research, ideas, homework, or anything else on your mind.</p>
       <div class="chips">
-        <button class="chip" data-mode="chat">Write a bedtime story about a shy dragon</button>
-        <button class="chip" data-mode="chat">Give me five names for a friendly robot</button>
-        <button class="chip" data-mode="image">A fox reading under a lantern, watercolor</button>
-        <button class="chip" data-mode="image">A tiny castle inside a teacup, storybook art</button>
+        <button class="chip">Explain how the internet works in simple terms</button>
+        <button class="chip">Write a Python function to check for palindromes</button>
+        <button class="chip">Plan a 3-day trip to Tokyo on a budget</button>
+        <button class="chip">Give me tips to prepare for a job interview</button>
       </div>
     </section>
   </main>
 
   <form id="form" autocomplete="off">
-    <textarea id="input" rows="1" placeholder="Type your message…" aria-label="Message"></textarea>
+    <textarea id="input" rows="1" placeholder="Message Wrolly-AI…" aria-label="Message"></textarea>
     <button class="send" id="send" aria-label="Send" disabled>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
     </button>
   </form>
+  <p class="note">Wrolly-AI can make mistakes. Check important information.</p>
 </div>
 
-<script>
-const $ = s => document.querySelector(s);
-const log = $("#log"), input = $("#input"), sendBtn = $("#send");
-let mode = "chat", history = [], busy = false;
-
-const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const md = s => esc(s)
-  .replace(/```(?:\w*\n)?([\s\S]*?)```/g, "<pre><code>$1</code></pre>")
-  .replace(/`([^`\n]+)`/g, "<code>$1</code>")
-  .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
-
-function setMode(m){
-  mode = m;
-  document.querySelectorAll(".modes button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === m));
-  input.placeholder = m === "image" ? "Describe the picture you want…" : "Type your message…";
-  input.focus();
-}
-function add(cls, html){
-  $("#hero")?.remove();
-  const d = document.createElement("div");
-  d.className = "msg " + cls; d.innerHTML = html;
-  log.appendChild(d); log.scrollTop = log.scrollHeight; return d;
-}
-function setBusy(v){ busy = v; document.body.classList.toggle("busy", v); sendBtn.disabled = v || !input.value.trim(); }
-
-const SYSTEM = "You are a friendly, imaginative writing helper on a children’s book author’s website. Keep every answer family-friendly, warm and clear.";
-const errText = e => e?.message || "Something went wrong. Try again in a moment.";
-
-// Free, no-login servers. Tried in order: Pollinations first, then LLM7.
-async function ask(url, body, headers = {}){
-  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 30000);
-  try{
-    const r = await fetch(url, {method:"POST", headers:{"Content-Type":"application/json", ...headers}, body:JSON.stringify(body), signal:ctl.signal});
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    const out = (await r.json())?.choices?.[0]?.message?.content;
-    if (!out) throw new Error("Empty reply");
-    return out;
-  } finally { clearTimeout(timer); }
-}
-let llm7Model;
-async function chat(messages){
-  const msgs = [{role:"system", content:SYSTEM}, ...messages];
-  try { return await ask("https://text.pollinations.ai/openai", {messages:msgs}); } catch(_) {}
-  try{
-    if (!llm7Model){
-      const ids = ((await (await fetch("https://api.llm7.io/v1/models")).json()).data || []).map(x => x.id);
-      llm7Model = ids.includes("default") ? "default" : ids[0];
-    }
-    return await ask("https://api.llm7.io/v1/chat/completions", {model:llm7Model, messages:msgs}, {Authorization:"Bearer unused"});
-  } catch(_) {}
-  throw new Error("The free AI servers are busy right now. Wait about 15 seconds and try again.");
-}
-function loadImg(src){
-  return new Promise((ok, no) => {
-    const i = new Image(), timer = setTimeout(() => no(new Error("The picture took too long. Try again in a moment.")), 90000);
-    i.onload = () => { clearTimeout(timer); ok(src); };
-    i.onerror = () => { clearTimeout(timer); no(new Error("The picture didn’t load. The free server allows about one picture every 15 seconds. Wait a moment and try again.")); };
-    i.src = src;
-  });
-}
-const makeImage = p => loadImg("https://image.pollinations.ai/prompt/" +
-  encodeURIComponent(p + ", children’s book illustration, friendly, colorful") + "?width=768&height=768&nologo=true&seed=" + Date.now());
-
-// On-device AI (WebLLM): runs a small Llama model in the visitor’s browser with WebGPU. No server, no login.
-let enginePromise, loadNote = () => {};
-function getEngine(){
-  enginePromise ||= (async () => {
-    const webllm = await import("https://esm.run/@mlc-ai/web-llm");
-    const f16 = (await navigator.gpu.requestAdapter())?.features.has("shader-f16");
-    return webllm.CreateMLCEngine(
-      f16 ? "Llama-3.2-1B-Instruct-q4f16_1-MLC" : "Llama-3.2-1B-Instruct-q4f32_1-MLC",
-      {initProgressCallback: r => loadNote(r)});
-  })().catch(e => { enginePromise = null; throw e; });
-  return enginePromise;
-}
-async function localChat(messages, bubble){
-  if (!navigator.gpu) throw new Error("This browser can’t run on-device AI. Use Chrome or Edge on a computer, or switch to Chat.");
-  loadNote = r => { bubble.className = "msg ai"; bubble.textContent = r.progress < 1
-    ? "Loading the AI onto your device (first time only, about 900 MB)… " + Math.round(r.progress * 100) + "%" : "Starting up…"; };
-  const engine = await getEngine();
-  bubble.className = "msg ai dots"; bubble.innerHTML = "<i></i><i></i><i></i>";
-  const r = await engine.chat.completions.create({messages:[{role:"system", content:SYSTEM}, ...messages], temperature:0.7, max_tokens:600});
-  return r.choices[0].message.content;
-}
-
-async function send(text){
-  text = text.trim(); if (!text || busy) return;
-  add("user", esc(text)); input.value = ""; input.style.height = "auto"; setBusy(true);
-  const wait = add("ai dots", "<i></i><i></i><i></i>");
-  try{
-    if (mode === "image"){
-      const src = await makeImage(text); wait.remove();
-      add("ai pic", `<img src="${src}" alt="${esc(text)}"><br><a href="${src}" download="story-image.jpg" target="_blank" rel="noopener">Save image</a>`);
-    } else {
-      history.push({role:"user", content:text});
-      const out = mode === "local" ? await localChat(history.slice(-12), wait) : await chat(history.slice(-12));
-      history.push({role:"assistant", content:out}); wait.remove(); add("ai", md(out));
-    }
-  } catch(e){ wait.remove(); if (mode === "chat") history.pop(); add("err", esc(errText(e))); }
-  setBusy(false); log.scrollTop = log.scrollHeight;
-}
-
-document.querySelectorAll(".modes button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
-document.querySelectorAll(".chip").forEach(c => c.onclick = () => { setMode(c.dataset.mode); send(c.textContent); });
-$("#form").onsubmit = e => { e.preventDefault(); send(input.value); };
-input.addEventListener("input", () => {
-  input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 150) + "px";
-  sendBtn.disabled = busy || !input.value.trim();
-});
-input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); $("#form").requestSubmit(); } });
-</script>
+<script src="app.js"></script>
 </body>
 </html>
