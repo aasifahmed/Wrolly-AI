@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wrolly-AI</title>
+<meta name="description" content="Wrolly-AI, a fast and friendly AI assistant for any question.">
+<meta name="theme-color" content="#120F2E">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wrolly-AI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -32,17 +39,23 @@
       <svg class="logo"><use href="#logo"/></svg>
       <div><h1>Wrolly-AI</h1><small>Ask me anything</small></div>
     </div>
+    <div class="tools">
+    <button type="button" id="install" class="ghost" hidden aria-label="Install app" title="Install app">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg>
+      <span>Install</span>
+    </button>
     <button type="button" id="clear" class="ghost" aria-label="Delete history" title="Delete history">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/></svg>
       <span>Delete history</span>
     </button>
+    </div>
   </header>
 
   <main id="log" aria-live="polite">
     <section class="hero" id="hero">
       <svg class="logo big"><use href="#logo"/></svg>
       <h2>Hi, I’m Wrolly-AI</h2>
-      <p>Ask me about code, writing, research, ideas, homework, or anything else on your mind.</p>
+      <p>Ask me about code, writing, research, ideas, homework or anything else on your mind. No login required.</p>
       <div class="chips">
         <button class="chip">Explain how the internet works in simple terms</button>
         <button class="chip">Write a Python function to check for palindromes</button>

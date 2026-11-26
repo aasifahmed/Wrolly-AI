@@ -219,3 +219,15 @@ try { // keep the wait going if the page is refreshed during the 15 seconds
   const left = COOLDOWN - Math.floor((Date.now() - (+localStorage.getItem("wrolly-ai-last") || 0)) / 1000);
   if (left > 0 && left <= COOLDOWN) cooldown(left);
 } catch(_) {}
+
+// Installable app (PWA): register the service worker and show an Install button when the browser allows it.
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+const installBtn = $("#install"), standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+let installEvent;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvent = e; if (!standalone) installBtn.hidden = false; });
+addEventListener("appinstalled", () => { installBtn.hidden = true; installEvent = null; });
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) installBtn.hidden = false; // iOS has no install prompt
+installBtn.onclick = async () => {
+  if (installEvent){ installEvent.prompt(); await installEvent.userChoice.catch(() => {}); installEvent = null; installBtn.hidden = true; }
+  else alert("To install Wrolly-AI: tap the Share button in Safari, then choose “Add to Home Screen”.");
+};
