@@ -68,8 +68,20 @@ main{flex:1;padding:22px var(--gutter) 28px;display:flex;flex-direction:column;g
 .msg h3,.msg h4{font-family:var(--serif);line-height:1.25;margin:1em 0 .4em}.msg h3{font-size:1.2rem}.msg h4{font-size:1.05rem}
 .msg blockquote{border-left:3px solid var(--violet);padding-left:12px;margin:.7em 0;color:var(--muted)}
 .msg hr{border:0;border-top:1px solid var(--line);margin:1em 0}.msg a{color:#C9BFFF;text-underline-offset:3px}
-.tw{overflow-x:auto;margin:.6em 0}.msg table{border-collapse:collapse;font-size:.92rem}
-.msg th,.msg td{border:1px solid var(--line);padding:8px 12px;text-align:left}.msg th{background:rgba(255,255,255,.07)}
+/* Tables: keep natural column widths and scroll sideways instead of squeezing text into tall, narrow cells */
+.tw{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.7em 0;border:1px solid var(--line);border-radius:12px;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent;
+  background:
+    linear-gradient(to right,#1f1c3d 30%,rgba(31,28,61,0)) 0 0/36px 100% no-repeat local,
+    linear-gradient(to left,#1f1c3d 30%,rgba(31,28,61,0)) 100% 0/36px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%,rgba(0,0,0,.45),transparent) 0 0/12px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.45),transparent) 100% 0/12px 100% no-repeat scroll}
+.msg table{border-collapse:collapse;width:max-content;min-width:100%;font-size:.92rem}
+.msg th,.msg td{padding:10px 14px;text-align:left;vertical-align:top;min-width:110px;max-width:300px;
+  overflow-wrap:normal;word-break:normal;border-bottom:1px solid var(--line)}
+.msg th{background:rgba(255,255,255,.08);white-space:nowrap;font-weight:600}
+.msg tbody tr:nth-child(even){background:rgba(255,255,255,.03)}
+.msg tbody tr:last-child td{border-bottom:0}
 .acts{align-self:flex-start;display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 0 4px}
 .act{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--muted);font:600 .78rem var(--sans);padding:6px 11px;border-radius:999px;cursor:pointer;transition:color .2s,border-color .2s,background .2s}
 .act svg{width:15px;height:15px}.act:hover{color:var(--ink);border-color:var(--violet);background:rgba(155,140,255,.12)}
